@@ -7,10 +7,6 @@ This repository is a end-to-end URL shortener:
 - **Backend**: Spring Boot + Spring Data JPA (Hibernate) + **H2 file DB**
 - **Frontend**: React (Vite) — simple UI to shorten URLs
 
-The implementation is intentionally minimal, but the README is written from a **system design perspective** (how it works now, and how you scale it later).
-
----
-
 ## What the system does
 
 ### Functional requirements (MVP)
@@ -20,7 +16,7 @@ The implementation is intentionally minimal, but the README is written from a **
 - **Optional expiration**: link can expire at a specified time
 
 ### Non-functional goals (MVP)
-- Simple and easy to run locally
+- Low latency redirects
 - Correctness for alias uniqueness and expiration rules
 
 ---
@@ -33,7 +29,7 @@ This is a **single backend service** with a separate **React UI**.
 1. Client sends `POST /api/v1/shorten`
 2. Backend checks if a valid (non-expired) mapping already exists for the same `longUrl`
 3. If yes: returns the existing `shortCode`
-4. If no: creates a new row and generates a short code using **base62(id)**
+4. If no: creates a new row and generates a short code using **base62(id) with shuffling**
 5. Returns `{ shortCode, shortUrl, ... }`
 
 **Flow: Redirect**
@@ -47,13 +43,13 @@ This is a **single backend service** with a separate **React UI**.
 
 ## Data model
 
-Single table (represented by JPA entity `UrlMapping`):
+JPA entity `UrlMapping`:
 
 - `id` (auto-increment primary key)
 - `longUrl` (original destination URL)
 - `shortCode` (unique code exposed in the short URL path)
 - `createdAt`
-- `expiresAt` (nullable)
+- `expiresAt` (default: 30 days)
 
 Notes:
 - `shortUrl` is **derived** (constructed from `app.base.url + "/" + shortCode`) and is not stored.
@@ -65,15 +61,11 @@ Notes:
 
 ### Current strategy (base62 of database id)
 - Insert row → get `id`
-- `shortCode = base62(id)`
+- `shortCode = base62(id+ shuffling)`
 
 Pros:
 - Very simple and fast
 - No collision retries for auto-generated codes
-
-Cons:
-- Predictable (sequential ids) unless you add a shuffling step
-- Requires a write to get an `id` before computing `shortCode` (2-step save)
 
 ### Optional aliases
 - If an alias is provided, it becomes the `shortCode`
@@ -119,10 +111,10 @@ Response JSON (example):
 {
   "id": 1,
   "longUrl": "https://example.com/some/path",
-  "shortCode": "b",
+  "shortCode": "bjt9k",
   "createdAt": "2026-04-27T15:08:25.8160811",
   "expiresAt": "2026-12-31T23:59:59",
-  "shortUrl": "http://localhost:8084/b",
+  "shortUrl": "http://localhost:8084/bjt9k",
   "alias": null
 }
 ```
@@ -156,32 +148,6 @@ npm run dev
 ```
 
 Vite runs on `5173` and proxies `/api` to the backend.
-
----
-
-## Scaling path (how you’d evolve this design)
-
-If you want to move toward a Bitly-like design:
-
-### 1) Split read/write services
-- **Write Service**: create/alias/expiration
-- **Read Service**: redirect only
-- Lets you scale redirect traffic independently from creates.
-
-### 2) Add caching for redirects
-- Add Redis cache: `shortCode -> longUrl`
-- Redirect service checks cache first, DB second
-- TTL should align with expiration time
-
-### 3) Improve uniqueness generation at scale
-Options:
-- **Redis counter** + base62 (global atomic counter)
-- **Hash-based** codes (SHA/HMAC + base62 + collision retries)
-
-### 4) Add observability + abuse controls
-- Rate limiting (per IP / per API key)
-- Logging + metrics (p95 latency, cache hit rate, error rate)
-- Allowlist/denylist or malware scanning for destinations
 
 ---
 
