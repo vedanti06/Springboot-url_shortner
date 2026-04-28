@@ -23,10 +23,22 @@ public class UrlService {
         this.repository = repository;
     }
 
+    /** Cleanup Job: Runs every day at midnight (00:00:00) */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void cleanupExpiredLinks() {
+        int deleted = repository.deleteByExpiresAtBefore(LocalDateTime.now());
+        System.out.println("Cron Job: Deleted " + deleted + " expired links.");
+    }
+
     @Transactional
     public UrlMapping shorten(UrlMapping body) {
         if (body.getLongUrl() == null || body.getLongUrl().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "longUrl is required");
+        }
+
+        LocalDateTime expires = body.getExpiresAt();
+        if (expires == null) {
+            expires = LocalDateTime.now().plusDays(30);
         }
 
         // 1. Handle Custom Alias
