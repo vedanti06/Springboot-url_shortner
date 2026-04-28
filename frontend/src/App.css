@@ -1,0 +1,112 @@
+.card {
+  width: 100%;
+  max-width: 28rem;
+  background: #1a2332;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #2f3b4d;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.sub {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  color: #8b98a5;
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: #c4cfd6;
+}
+
+input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #2f3b4d;
+  background: #0f1419;
+  color: #e7e9ea;
+  font-size: 0.95rem;
+  margin-bottom: 0.9rem;
+}
+
+input:focus {
+  outline: 2px solid #1d9bf0;
+  border-color: #1d9bf0;
+}
+
+button {
+  width: 100%;
+  padding: 0.65rem;
+  border: none;
+  border-radius: 999px;
+  background: #1d9bf0;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.err {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(244, 33, 46, 0.12);
+  color: #f4212e;
+  font-size: 0.85rem;
+}
+
+.ok {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #111a26;
+  border: 1px solid #2f3b4d;
+}
+
+.ok h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: #8b98a5;
+  font-weight: 600;
+}
+
+.ok a {
+  color: #1d9bf0;
+  word-break: break-all;
+}
+
+.row {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.copy {
+  margin-top: 0.5rem;
+  background: #22303c;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #8b98a5;
+  margin: -0.5rem 0 0.75rem;
+}
